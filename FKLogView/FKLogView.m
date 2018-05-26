@@ -72,14 +72,44 @@
     self.logView.frame = self.bounds;
 }
 
+// MARK: - Show and hide
 - (void)showInWindow:(UIWindow *)window {
+    [self resignFirstResponderInView:window];
+    
     [window addSubview:self];
+    
     CGRect frame = window.bounds;
     frame.origin.y = frame.size.height;
     self.frame = frame;
+    
     [UIView animateWithDuration:0.25 animations:^{
         self.frame = window.bounds;
     }];
+}
+
+- (void)show {
+    UIApplication *app = [UIApplication sharedApplication];
+    UIWindow *window;
+    if ([app.delegate respondsToSelector:@selector(window)]) {
+        window = [app.delegate window];
+    } else {
+        window = [app keyWindow];
+    }
+    if (window) {
+        [self showInWindow:window];
+    }
+}
+
+- (BOOL)resignFirstResponderInView:(UIView *)view {
+    if ([view isFirstResponder]) {
+        return [view resignFirstResponder];
+    }
+    for (UIView *subview in view.subviews) {
+        if ([self resignFirstResponderInView:subview]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 - (void)hide {
@@ -92,6 +122,7 @@
     }];
 }
 
+// MARK: - FKLoggerHandler
 - (void)handleLog:(FKLog *)log {
     if (!self.enabled) {
         return;

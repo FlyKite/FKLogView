@@ -29,8 +29,22 @@
  */
 @property (assign, nonatomic) NSUInteger maximumLogItemCount;
 
+/**
+ Show FKLogView in target window
+ 
+ @param window target window
+ */
 - (void)showInWindow:(UIWindow *)window;
 
+/**
+ Find the window which is key and visible
+ Show FKLogView in this window
+ */
+- (void)show;
+
+/**
+ Hide FKLogView and remove from window
+ */
 - (void)hide;
 
 @end
