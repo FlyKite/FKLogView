@@ -12,6 +12,10 @@
 
 #define CELL_ID @"log_cell"
 
+void mainQueueAsync(void(^block)(void)) {
+    dispatch_queue_t queue = dispatch_get_main_queue();
+    dispatch_async(queue, block);
+}
 @protocol FKLogViewAppearanceDelegate
 - (void)logViewAppearanceChanged;
 @end
@@ -76,6 +80,7 @@
 - (void)showInWindow:(UIWindow *)window {
     [self resignFirstResponderInView:window];
     
+    [self.logView reloadData];
     [window addSubview:self];
     
     CGRect frame = window.bounds;
@@ -128,10 +133,24 @@
         return;
     }
     [self.logs addObject:log];
-    [self.logView beginUpdates];
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:self.logs.count - 1 inSection:0];
-    [self.logView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
-    [self.logView endUpdates];
+    BOOL removeFirstLog = self.logs.count > self.maximumLogItemCount;
+    if (removeFirstLog) {
+        [self.logs removeObjectAtIndex:0];
+    }
+    
+    if (!self.superview) {
+        return;
+    }
+    mainQueueAsync(^{
+        [self.logView beginUpdates];
+        if (removeFirstLog) {
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+            [self.logView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+        }
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:self.logs.count - 1 inSection:0];
+        [self.logView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+        [self.logView endUpdates];
+    });
 }
 
 // MARK: - UITableViewDataSource & UITableViewDelegate
