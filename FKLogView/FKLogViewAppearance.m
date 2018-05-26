@@ -50,7 +50,11 @@ void fk_setter(id self, SEL _cmd, id var) {
     NSString *setterName = NSStringFromSelector(_cmd);
     NSString *fkSetterName = [NSString stringWithFormat:@"fk_%@:", setterName];
     SEL fkSetter = NSSelectorFromString(fkSetterName);
-    [self performSelector:fkSetter withObject:var];
+    
+    IMP imp = [self methodForSelector:fkSetter];
+    void (*setter)(id, SEL, id) = (void *)imp;
+    setter(self, fkSetter, var);
+    
     [self performSelector:@selector(appearanceChanged) withObject:nil];
 }
 
