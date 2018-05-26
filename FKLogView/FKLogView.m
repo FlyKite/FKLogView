@@ -57,6 +57,7 @@ void mainQueueAsync(void(^block)(void)) {
         _maximumLogItemCount = 1000;
         self.backgroundColor = self.appearance.backgroundColor;
         [self setupViews];
+        [self listenScreenOrientation];
     }
     return self;
 }
@@ -69,6 +70,26 @@ void mainQueueAsync(void(^block)(void)) {
     _logView.backgroundColor = self.appearance.backgroundColor;
     _logView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self addSubview:_logView];
+}
+
+- (void)listenScreenOrientation {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(screenOrientationDidChanged)
+                                                 name:UIDeviceOrientationDidChangeNotification
+                                               object:nil];
+}
+
+- (void)screenOrientationDidChanged {
+    UIView *superview = self.superview;
+    if (superview) {
+        CGRect frame = self.frame;
+        frame.size.width = MAX(superview.bounds.size.width, frame.size.width);
+        frame.size.height = MAX(superview.bounds.size.height, frame.size.height);
+        self.frame = frame;
+        [UIView animateWithDuration:0.25 delay:0.1 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            self.frame = superview.bounds;
+        } completion:nil];
+    }
 }
 
 - (void)layoutSubviews {

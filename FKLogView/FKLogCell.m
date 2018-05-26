@@ -25,12 +25,12 @@
 - (void)setupViews {
     _logLabel = [[UILabel alloc] init];
     _logLabel.numberOfLines = 0;
-    [self addSubview:_logLabel];
+    [self.contentView addSubview:_logLabel];
 }
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    self.logLabel.frame = self.bounds;
+    self.logLabel.frame = self.contentView.bounds;
 }
 
 - (void)updateLog:(FKLog *)log withAppearnce:(FKLogViewAppearance *)appearance {

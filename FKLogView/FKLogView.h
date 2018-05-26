@@ -31,7 +31,7 @@
 
 /**
  Show FKLogView in target window
- 
+
  @param window target window
  */
 - (void)showInWindow:(UIWindow *)window;
